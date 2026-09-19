@@ -12,7 +12,7 @@ Every functional change requires appropriate automated tests and the test suite 
 Use pytest-cov. Initial target: at least 80% coverage on new/changed production code where meaningful. Meaningful assertions matter more than the percentage alone.
 
 ## E2E
-Use Playwright for browser/admin-web workflows when a web UI exists. Use a native-mobile-appropriate framework for the eventual mobile client.
+Use Playwright for browser/admin-web workflows when a web UI exists. Run mobile E2E tests for both iPhone and Android using a framework suited to the selected mobile stack. Validate sign-in, practice, answer submission, grounded explanations, and network failure recovery on both platforms.
 
 ## Code Quality
 Use Ruff for Python linting/formatting. Use explicit type hints and add Pyright or mypy as a CI gate.
@@ -37,3 +37,15 @@ Keep changes reviewable. PRs should identify what changed, why, tests performed,
 
 ## Definition of Done
 Code within size limits; appropriate tests exist and pass; lint/type/security checks pass; migrations are included/tested if needed; observability is included where appropriate; material documentation is current.
+
+## Agent and Skill Engineering
+Treat AI skills as versioned application modules, distinct from curriculum skills. Require typed contracts, least-privilege tool access, deterministic validation, bounded retries, timeouts, and per-workflow token/cost limits. Persist workflow state and make retried writes idempotent. Test cancellation, partial failure, unauthorized tool requests, and prompt injection. Never allow model output to bypass authorization, content review, or publication validation.
+
+## RAG Quality Gates
+Maintain versioned evaluation sets for retrieval relevance, source attribution, grounded answers, insufficient evidence, permission isolation, and malicious retrieved content. Set measurable acceptance thresholds before enabling each AI workflow in production. Mock model calls in ordinary CI; run controlled integration/evaluation suites separately with explicit budgets. Track source approval, rights, versions, and deletion through chunks, embeddings, and caches.
+
+## Mobile Quality Gates
+Build and test both iOS and Android in CI using appropriate runners. Apply the selected stack's lint, type, unit, and UI checks. Test accessibility, secure authentication storage, API compatibility, interrupted connectivity, and duplicate submission prevention. Protect signing credentials and use staged store releases with documented release procedures.
+
+## GCP Deployment Gates
+Version infrastructure as code. Use least-privilege service identities and short-lived deployment credentials. Verify container health/readiness, migrations, backup recovery, rollback, and staging smoke tests. Load-test autoscaling, database pool limits, queue backlog recovery, and AI concurrency/cost controls before production. Define release thresholds and monitor them after rollout.

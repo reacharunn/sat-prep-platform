@@ -31,3 +31,8 @@ Validate against real workloads before finalizing:
 
 ## Alerts
 Alerts should be actionable. Candidates include sustained 5xx elevation, sustained latency/SLO violations, DB connection exhaustion, deployment health failure, and unusual authentication/security failures.
+
+## Agents, Skills, RAG, and Mobile
+Trace workflow runs, agent steps, skill versions, retrieval, and model calls with correlation IDs. Measure queue delay, retries, cancellations, tool failures, retrieval latency, empty results, grounding/evaluation quality, token consumption, and cost. Record safe source identifiers and versions without logging protected source text or student data by default.
+
+Monitor Cloud Run instance/concurrency limits, Cloud SQL connection pressure, worker backlog, and budget thresholds. Collect privacy-conscious crash and API failure telemetry for both iOS and Android. Alert on actionable workflow failures and sustained quality, capacity, or cost threshold breaches.

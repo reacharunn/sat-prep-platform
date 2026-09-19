@@ -104,3 +104,6 @@ Misconception:
 ## Cloud SQL later
 
 Replace the local DATABASE_URL with a PostgreSQL connection string and deploy the same container to Cloud Run.
+
+## Required Product Direction
+The target product includes iPhone and Android apps, backend agents with reusable AI skills, RAG grounded in approved content, and scalable GCP deployment. These capabilities are requirements and are not yet implemented by this starter. See REQUIREMENTS.md, ARCHITECTURE.md, ENGINEERING_STANDARDS.md, and docs/ for the governing rules.
