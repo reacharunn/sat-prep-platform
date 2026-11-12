@@ -22,4 +22,26 @@ function makeSet(subject,topic,count){const candidates=bank.filter(q=>q.subject=
 function showQuestion(){const q=session[index];$("progress").textContent="Question "+(index+1)+" of "+session.length;$("score").textContent=correct+" correct";$("fill").style.width=(100*index/session.length)+"%";$("concept").textContent=q.topic+" · "+q.concept;$("stem").textContent=q.stem;$("choices").replaceChildren();$("feedback").classList.add("hidden");$("next").classList.add("hidden");q.choices.forEach((choice,i)=>{const b=document.createElement("button");b.className="choice";b.textContent=String.fromCharCode(65+i)+". "+choice;b.onclick=()=>answer(i);$("choices").append(b)})}
 function answer(selected){const q=session[index],ok=selected===q.answer;if(ok)correct++;else misses[q.concept]=(misses[q.concept]||0)+1;[...$("choices").children].forEach((b,i)=>{b.disabled=true;if(i===q.answer)b.classList.add("correct");if(i===selected&&!ok)b.classList.add("wrong")});$("feedback").textContent=(ok?"Correct! ":"Not quite. ")+q.explanation;$("feedback").classList.remove("hidden");$("score").textContent=correct+" correct";$("next").textContent=index===session.length-1?"See results":"Next question";$("next").classList.remove("hidden")}
 function finish(){$("quiz").classList.add("hidden");$("results").classList.remove("hidden");$("summary").textContent=correct+" out of "+session.length+" correct ("+Math.round(correct/session.length*100)+"%).";$("review").replaceChildren();const entries=Object.entries(misses);if(!entries.length){$("review").textContent="Great work! Try a different focus area."}for(const [concept,n] of entries){const p=document.createElement("p");p.textContent=concept+": "+n+" missed";$("review").append(p)}try{const key="divya-sat-practice-v1";const old=JSON.parse(localStorage.getItem(key)||"[]");old.push({date:new Date().toISOString(),subject:$("subject").value,score:correct,total:session.length,misses});localStorage.setItem(key,JSON.stringify(old.slice(-50)))}catch(e){/* private browsing may disable storage */}}
-$("subject").addEventListener("change",updateTopics);$("start").addEventListener("click",()=>{const subject=$("subject").value,topic=$("topic").value;session=shuffle(makeSet(subject,topic,Number($("count").value)));index=0;correct=0;misses={};$("setup").classList.add("hidden");$("results").classList.add("hidden");$("quiz").classList.remove("hidden");showQuestion()});$("next").addEventListener("click",()=>{index++;if(index>=session.length)finish();else showQuestion()});$("again").addEventListener("click",()=>{$("results").classList.add("hidden");$("setup").classList.remove("hidden")});updateTopics();
+$("mode").addEventListener("change",()=>{$("ai-settings").classList.toggle("hidden",$("mode").value!=="ai")});
+async function startPractice(){
+const subject=$("subject").value,topic=$("topic").value,count=Number($("count").value);
+$("setup-error").textContent="";$("start").disabled=true;
+try{
+if($("mode").value==="ai"){
+if(topic==="All topics")throw Error("Choose a specific topic for AI generation.");
+const token=$("practice-token").value;
+if(!token)throw Error("Enter the practice access token.");
+const response=await fetch("/api/ai/generate",{
+method:"POST",
+headers:{"Content-Type":"application/json","x-practice-token":token},
+body:JSON.stringify({subject,topic,difficulty:$("difficulty").value,count:Math.min(count,10)})
+});
+if(!response.ok)throw Error("AI generation unavailable (HTTP "+response.status+").");
+const data=await response.json();session=shuffle(data.questions);
+}else{session=shuffle(makeSet(subject,topic,count))}
+index=0;correct=0;misses={};$("setup").classList.add("hidden");
+$("results").classList.add("hidden");$("quiz").classList.remove("hidden");showQuestion();
+}catch(error){$("setup-error").textContent=error.message}
+finally{$("start").disabled=false}
+}
+$("subject").addEventListener("change",updateTopics);$("start").addEventListener("click",startPractice);$("next").addEventListener("click",()=>{index++;if(index>=session.length)finish();else showQuestion()});$("again").addEventListener("click",()=>{$("results").classList.add("hidden");$("setup").classList.remove("hidden")});updateTopics();
