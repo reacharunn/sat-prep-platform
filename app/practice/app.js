@@ -1,0 +1,47 @@
+"use strict";
+const $=id=>document.getElementById(id);
+const topics={math:["Algebra","Advanced Math","Geometry & Trigonometry"],english:["Grammar","Transitions","Reading Comprehension"]};
+const bank=[
+{subject:"math",topic:"Algebra",concept:"Solving linear equations",stem:"If 3x + 7 = 25, what is x?",choices:["4","6","8","10"],answer:1,explanation:"Subtract 7 from both sides: 3x = 18. Divide by 3 to get x = 6.",wrong:["Subtracting incorrectly","Correct","Dividing incorrectly","Ignoring the constant"]},
+{subject:"math",topic:"Algebra",concept:"Slope",stem:"A line passes through (1, 2) and (3, 8). What is its slope?",choices:["2","3","4","6"],answer:1,explanation:"Slope is change in y divided by change in x: (8 − 2)/(3 − 1) = 3."},
+{subject:"math",topic:"Advanced Math",concept:"Quadratic factoring",stem:"What are the solutions of x² − 5x + 6 = 0?",choices:["1 and 6","−2 and −3","2 and 3","−1 and −6"],answer:2,explanation:"Factor as (x − 2)(x − 3) = 0, so x = 2 or 3."},
+{subject:"math",topic:"Advanced Math",concept:"Exponent rules",stem:"For x > 0, which expression equals x³ · x⁴?",choices:["x¹²","x⁷","2x⁷","x"],answer:1,explanation:"When multiplying powers with the same base, add the exponents: 3 + 4 = 7."},
+{subject:"math",topic:"Geometry & Trigonometry",concept:"Triangle angle sum",stem:"Two angles in a triangle measure 45° and 65°. What is the third angle?",choices:["60°","70°","80°","110°"],answer:1,explanation:"Triangle angles total 180°. The missing angle is 180 − 45 − 65 = 70°."},
+{subject:"math",topic:"Geometry & Trigonometry",concept:"Right-triangle trigonometry",stem:"In a right triangle, the side opposite angle θ is 3 and the hypotenuse is 5. What is sin θ?",choices:["3/5","4/5","5/3","3/4"],answer:0,explanation:"Sine is opposite divided by hypotenuse, so sin θ = 3/5."},
+{subject:"english",topic:"Grammar",concept:"Subject–verb agreement",stem:"The collection of rare books ___ on display in the library.",choices:["are","were","is","have been"],answer:2,explanation:"The subject is singular: collection. The phrase 'of rare books' does not change its number."},
+{subject:"english",topic:"Grammar",concept:"Sentence boundaries",stem:"Choose the grammatically correct sentence.",choices:["The results were surprising, the researchers checked them again.","The results were surprising; the researchers checked them again.","The results were surprising the researchers checked them again.","The results were surprising, checking them again."],answer:1,explanation:"A semicolon can join two closely related independent clauses."},
+{subject:"english",topic:"Transitions",concept:"Contrast transitions",stem:"The first design was inexpensive. ___, it proved unreliable during testing.",choices:["Therefore","Similarly","However","For example"],answer:2,explanation:"However signals the contrast between low cost and poor reliability."},
+{subject:"english",topic:"Transitions",concept:"Cause and effect",stem:"The road was closed after heavy rainfall. ___, commuters took alternate routes.",choices:["Consequently","Nevertheless","Likewise","For instance"],answer:0,explanation:"Consequently introduces the result of the road closure."},
+{subject:"english",topic:"Reading Comprehension",concept:"Central idea",stem:"Passage: Urban trees can lower street temperatures by providing shade. They also absorb some rainwater, reducing runoff. Which choice best states the main idea?",choices:["Cities should remove roads.","Urban trees offer multiple environmental benefits.","Rainfall is always harmful.","Shade prevents all flooding."],answer:1,explanation:"Both examples support the broad idea that urban trees provide environmental benefits."},
+{subject:"english",topic:"Reading Comprehension",concept:"Evidence-based inference",stem:"Passage: When the museum extended its evening hours, attendance among working adults increased. Which inference is best supported?",choices:["All visitors prefer evenings.","Tickets became free.","Extended hours made visits more accessible to some workers.","Weekend attendance disappeared."],answer:2,explanation:"The increase among working adults supports greater accessibility, not claims about all visitors."}
+];
+let session=[],index=0,correct=0,misses={};
+function updateTopics(){const subject=$("subject").value;$("topic").replaceChildren();for(const name of ["All topics",...topics[subject]]){const option=document.createElement("option");option.value=name;option.textContent=name;$("topic").append(option)}}
+function shuffle(items){const a=[...items];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function makeSet(subject,topic,count){const candidates=bank.filter(q=>q.subject===subject&&(topic==="All topics"||q.topic===topic));return Array.from({length:count},(_,i)=>({...candidates[i%candidates.length],variant:i>=candidates.length})).map(q=>q)}
+function showQuestion(){const q=session[index];$("progress").textContent="Question "+(index+1)+" of "+session.length;$("score").textContent=correct+" correct";$("fill").style.width=(100*index/session.length)+"%";$("concept").textContent=q.topic+" · "+q.concept;$("stem").textContent=q.stem;$("choices").replaceChildren();$("feedback").classList.add("hidden");$("next").classList.add("hidden");q.choices.forEach((choice,i)=>{const b=document.createElement("button");b.className="choice";b.textContent=String.fromCharCode(65+i)+". "+choice;b.onclick=()=>answer(i);$("choices").append(b)})}
+function answer(selected){const q=session[index],ok=selected===q.answer;if(ok)correct++;else misses[q.concept]=(misses[q.concept]||0)+1;[...$("choices").children].forEach((b,i)=>{b.disabled=true;if(i===q.answer)b.classList.add("correct");if(i===selected&&!ok)b.classList.add("wrong")});$("feedback").textContent=(ok?"Correct! ":"Not quite. ")+q.explanation;$("feedback").classList.remove("hidden");$("score").textContent=correct+" correct";$("next").textContent=index===session.length-1?"See results":"Next question";$("next").classList.remove("hidden")}
+function finish(){$("quiz").classList.add("hidden");$("results").classList.remove("hidden");$("summary").textContent=correct+" out of "+session.length+" correct ("+Math.round(correct/session.length*100)+"%).";$("review").replaceChildren();const entries=Object.entries(misses);if(!entries.length){$("review").textContent="Great work! Try a different focus area."}for(const [concept,n] of entries){const p=document.createElement("p");p.textContent=concept+": "+n+" missed";$("review").append(p)}try{const key="divya-sat-practice-v1";const old=JSON.parse(localStorage.getItem(key)||"[]");old.push({date:new Date().toISOString(),subject:$("subject").value,score:correct,total:session.length,misses});localStorage.setItem(key,JSON.stringify(old.slice(-50)))}catch(e){/* private browsing may disable storage */}}
+$("mode").addEventListener("change",()=>{$("ai-settings").classList.toggle("hidden",$("mode").value!=="ai")});
+async function startPractice(){
+const subject=$("subject").value,topic=$("topic").value,count=Number($("count").value);
+$("setup-error").textContent="";$("start").disabled=true;
+try{
+if($("mode").value==="ai"){
+if(topic==="All topics")throw Error("Choose a specific topic for AI generation.");
+const token=$("practice-token").value;
+if(!token)throw Error("Enter the practice access token.");
+const response=await fetch("/api/ai/generate",{
+method:"POST",
+headers:{"Content-Type":"application/json","x-practice-token":token},
+body:JSON.stringify({subject,topic,difficulty:$("difficulty").value,count:Math.min(count,10)})
+});
+if(!response.ok)throw Error("AI generation unavailable (HTTP "+response.status+").");
+const data=await response.json();session=shuffle(data.questions);
+}else{session=shuffle(makeSet(subject,topic,count))}
+index=0;correct=0;misses={};$("setup").classList.add("hidden");
+$("results").classList.add("hidden");$("quiz").classList.remove("hidden");showQuestion();
+}catch(error){$("setup-error").textContent=error.message}
+finally{$("start").disabled=false}
+}
+$("subject").addEventListener("change",updateTopics);$("start").addEventListener("click",startPractice);$("next").addEventListener("click",()=>{index++;if(index>=session.length)finish();else showQuestion()});$("again").addEventListener("click",()=>{$("results").classList.add("hidden");$("setup").classList.remove("hidden")});updateTopics();
