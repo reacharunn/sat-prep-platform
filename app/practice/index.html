@@ -1,0 +1,10 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Divya SAT Prep</title><link rel="stylesheet" href="/practice/static/style.css"></head>
+<body><main class="shell"><header><div><h1>Divya SAT Prep</h1><p>Concept-first Math and Reading & Writing practice</p></div><span class="tag">SAT Practice</span></header>
+<section class="panel" id="setup"><h2>Start a practice set</h2><label for="subject">Subject</label><select id="subject"><option value="math">SAT Math</option><option value="english">Reading & Writing</option></select>
+<label for="topic">Focus area</label><select id="topic"></select><label for="count">Questions</label><select id="count"><option>5</option><option selected>10</option><option>15</option></select>
+<button id="start">Start practice</button><p class="hint">Questions are original SAT-style practice, not official College Board items.</p></section>
+<section class="panel hidden" id="quiz"><div class="bar"><span id="progress"></span><span id="score"></span></div><div class="meter"><div id="fill"></div></div><p class="eyebrow" id="concept"></p><h2 id="stem"></h2><div id="choices" role="group" aria-label="Answer choices"></div><div id="feedback" class="feedback hidden" aria-live="polite"></div><button id="next" class="hidden">Next question</button></section>
+<section class="panel hidden" id="results"><h2>Practice complete</h2><p id="summary"></p><h3>Concepts to review</h3><div id="review"></div><button id="again">Practice again</button></section>
+<footer>Progress stays on this browser only. No student account or remote tracking yet.</footer></main><script src="/practice/static/app.js" defer></script></body></html>
