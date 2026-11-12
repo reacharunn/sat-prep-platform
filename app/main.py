@@ -6,10 +6,12 @@ from sqlalchemy.orm import Session
 
 from .db import Base, engine, get_db
 from . import models, schemas
+from .ai_questions import router as ai_questions_router
 
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="SAT Prep Taxonomy API", version="0.1.0")
+app.include_router(ai_questions_router)
 
 PRACTICE_DIR = Path(__file__).resolve().parent / "practice"
 app.mount("/practice/static", StaticFiles(directory=PRACTICE_DIR), name="practice-static")
